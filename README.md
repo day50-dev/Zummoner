@@ -51,13 +51,29 @@ And you will get commented spell casts that you can incrementally modify like be
 
 ## Caveats - A Little Magic Caution ⚠️
 
-Zummoner can use either [Simon w's llm](https://github.com/simonw/llm) or DAY50's [llcat](https://github.com/day50-dev/llcat).
+Zummoner can use either [Simon w's llm](https://github.com/simonw/llm), [LMStudio](https://lmstudio.ai/), or DAY50's [llcat](https://github.com/day50-dev/llcat).
 
-For `llcat` set the: 
+For `llcat` set the:
   * model with `LLC_MODEL`
   * server with `LLC_SERVER`
   * key with `LLC_KEY`
   * mcpfile (if you want) with `LLC_MCP`
+
+For LMStudio, set the model with `LMS_MODEL` (optional - defaults to first available model):
+  ```bash
+  LMS_MODEL="local-model-name"
+  ```
+
+### Backend Selection
+
+By default, Zummoner auto-detects backends in priority order: llcat > lms > llm. You can override this:
+
+  ```bash
+  ZUMMONER_BACKEND=auto    # Auto-detect (default)
+  ZUMMONER_BACKEND=llcat   # Force llcat
+  ZUMMONER_BACKEND=llm     # Force Simonw's llm
+  ZUMMONER_BACKEND=lms     # Force LMStudio CLI
+  ```
 
 
 There's also bummoner.sh in here which is the bash version of zummoner.

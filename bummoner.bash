@@ -1,3 +1,106 @@
+# LLM Backend System for Bummoner
+# Supports: llcat, lms, llm
+
+# ============================================================
+# llcat backend
+# ============================================================
+_ll_backend_llcat_detect() {
+  which llcat >& /dev/null
+}
+
+_ll_backend_llcat_model() {
+  echo "$LLC_MODEL"
+}
+
+_ll_backend_llcat_invoke() {
+  local model="$1"
+  local prompt="$2"
+  llcat -k "$LLC_KEY" -u "$LLC_SERVER" ${LLC_MCP:+-mf "$LLC_MCP"} -m "$model" "$prompt"
+}
+
+# ============================================================
+# lms backend (LMStudio CLI)
+# ============================================================
+_ll_backend_lms_detect() {
+  which lms >& /dev/null
+}
+
+_ll_backend_lms_model() {
+  if [[ -n "$LMS_MODEL" ]]; then
+    echo "$LMS_MODEL"
+  else
+    lms ls 2>/dev/null | head -n 1
+  fi
+}
+
+_ll_backend_lms_invoke() {
+  local model="$1"
+  local prompt="$2"
+  if [[ -z "$model" ]]; then
+    echo "Error: No model specified. Set LMS_MODEL or load a model in LMStudio." >&2
+    return 1
+  fi
+  lms chat "$model" -p "$prompt"
+}
+
+# ============================================================
+# llm backend (Simonw's llm)
+# ============================================================
+_ll_backend_llm_detect() {
+  which llm >& /dev/null
+}
+
+_ll_backend_llm_model() {
+  if [[ -r "$HOME/.config/io.datasette.llm/default_model.txt" ]]; then
+    cat "$HOME/.config/io.datasette.llm/default_model.txt"
+  else
+    llm models default
+  fi
+}
+
+_ll_backend_llm_invoke() {
+  local model="$1"
+  local prompt="$2"
+  llm -m "$model" "$prompt"
+}
+
+# ============================================================
+# Backend auto-selection
+# ============================================================
+_ll_select_backend() {
+  # If user specified a backend, use it
+  if [[ -n "$ZUMMONER_BACKEND" && "$ZUMMONER_BACKEND" != "auto" ]]; then
+    if _ll_backend_${ZUMMONER_BACKEND}_detect 2>/dev/null; then
+      echo "$ZUMMONER_BACKEND"
+      return 0
+    fi
+    return 1
+  fi
+
+  # Otherwise auto-detect by priority
+  for backend in llcat llm lms; do
+    if _ll_backend_${backend}_detect 2>/dev/null; then
+      echo "$backend"
+      return 0
+    fi
+  done
+  return 1
+}
+
+# Get model for selected backend
+_ll_get_model() {
+  local backend="$1"
+  _ll_backend_${backend}_model
+}
+
+# Invoke LLM with model and prompt
+_ll_invoke() {
+  local backend="$1"
+  local model="$2"
+  local prompt="$3"
+  _ll_backend_${backend}_invoke "$model" "$prompt"
+}
+
 bummoner() {
   local QUESTION="${READLINE_LINE:-}"
   local PROMPT="
@@ -29,23 +132,18 @@ bummoner() {
   other formatting. Do not include the command into a code block.
   Don't include the shell itself (bash, zsh, etc.) in the command.
   "
-  if which llcat >& /dev/null; then
-    alias _ll="llcat -k $LLC_KEY -u $LLC_SERVER"
-    [[ -n "$LLC_MCP" ]] && _ll="$_ll -mf $LLC_MCP"
-    model="$LLC_MODEL"
-  else
-    alias _ll="llm"
 
-    if [[ -r "$HOME/$config/io.datasette.llm/default_model.txt" ]]; then
-      model=$(cat "$HOME/$config/io.datasette.llm/default_model.txt")
-    else
-      model=$(llm models default)
-    fi
-  fi
+  # Auto-detect and select backend
+  local backend=$(_ll_select_backend) || {
+    READLINE_LINE="No LLM backend found (llcat, lms, or llm)"
+    return 1
+  }
+
+  local model=$(_ll_get_model "$backend")
 
   echo ""
   echo "$QUESTION ... $model"
-  local response=$(_ll -m "$model" "$PROMPT")
+  local response=$(_ll_invoke "$backend" "$model" "$PROMPT")
   local COMMAND=$(echo "$response" | sed 's/```//g' | tr -d '\n')
   if [[ -n "$COMMAND" ]]; then
     if [[ -n "$ZUMMONER_SPELL" ]]; then

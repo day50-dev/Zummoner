@@ -3,15 +3,13 @@
 <br/><strong>Your AI CLI helper a keystroke away</strong>
 </p>
 
-**Invoke the power of the command line with a whisper!**
+**Zummoner**, part of the [DAY50](https://day50.dev) suite of open-source tools for AI workflows, allows you to describe the command you wish to run, in whole or in part, at the command line, in English, and then have it get swapped out with the actual command. You can edit and modify it before invoking.
 
-Tired of remembering complex commands? 
+It can use any model and any endpoint, including local.
 
-🧙‍♂️ Zummoner is a Zsh plugin that *summons* the right command for you, using the magic of LLMs. Just describe what you want to do, and Zummoner does the rest!
+![zummoner](https://github.com/user-attachments/assets/f639fa9c-a28c-41a1-9d1a-f6ff7faab15e)
 
 **You Use Bash?** No Problem! `Bummoner.bash` works the same as `Zummoner.zsh`. It's right here in the repo. Clone away!
-
-![440177965-01488c16-fb68-4fdb-a7ea-76e12499641d](https://github.com/user-attachments/assets/e272d159-66c9-445a-8f82-4f545a5ddae6)
 
 
 ## Features
@@ -49,7 +47,7 @@ ZUMMONER_SPELL=1
 ```
 And you will get commented spell casts that you can incrementally modify like below!
 
-![zummoner](https://github.com/user-attachments/assets/f639fa9c-a28c-41a1-9d1a-f6ff7faab15e)
+
 
 ## Caveats 
 
@@ -61,5 +59,4 @@ For `llcat` set the:
   * key with `LLC_KEY`
   * mcpfile (if you want) with `LLC_MCP`
 
-There's also bummoner.sh in here which is the bash version of zummoner.
 

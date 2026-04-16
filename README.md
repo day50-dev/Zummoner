@@ -3,6 +3,10 @@
 <br/><strong>Your AI CLI helper a keystroke away</strong>
 </p>
 
+You're running a command such as `jq`, `awk`, or `ffmpeg` and forget the syntax. You don't want to navigate to another application to have a conversation with an LLM. 
+
+Get an immediate answer, just a keystroke away.
+
 **Zummoner**, part of the [DAY50](https://day50.dev) suite of open-source tools for AI workflows, allows you to describe the command you wish to run, in whole or in part, at the command line, in English, and then have it get swapped out with the actual command. You can edit and modify it before invoking.
 
 It can use any model and any endpoint, including local.
